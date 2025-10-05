@@ -1,0 +1,37 @@
+{
+  "audio_file": "C:\\Users\\lowee\\Desktop\\Well-Bot\\Well-Bot_v13\\tests\\sample_audio.wav",
+  "total_messages": 5,
+  "final_transcript": {
+    "type": "final",
+    "text": "I accidentally submitted the wrong report file to my supervisor today.",
+    "confidence": 1.0
+  },
+  "all_messages": [
+    {
+      "type": "partial",
+      "text": "I accidentally",
+      "confidence": 0.9980469
+    },
+    {
+      "type": "partial",
+      "text": "I accidentally submitted the wrong",
+      "confidence": 1.0
+    },
+    {
+      "type": "partial",
+      "text": "I accidentally submitted the wrong report file to my",
+      "confidence": 1.0
+    },
+    {
+      "type": "partial",
+      "text": "I accidentally submitted the wrong report file to my supervisor to",
+      "confidence": 0.99902344
+    },
+    {
+      "type": "final",
+      "text": "I accidentally submitted the wrong report file to my supervisor today.",
+      "confidence": 1.0
+    }
+  ],
+  "test_timestamp": "2025-10-05T11:22:44.212151"
+}

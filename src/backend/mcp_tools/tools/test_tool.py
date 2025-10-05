@@ -3,7 +3,7 @@ Test tool implementation following ADD_MCP.md pattern.
 Simple "hello world" tool to validate the infrastructure.
 """
 
-from envelopes import Card, ok_card, Diagnostics
+from ..envelopes import Card, ok_card, Diagnostics
 from typing import Dict, Any
 
 

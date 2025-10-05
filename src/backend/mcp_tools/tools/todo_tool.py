@@ -3,7 +3,7 @@ Todo tools following Global LLD.
 Handles todo add, list, complete, and delete operations.
 """
 
-from envelopes import Card, ok_card, Diagnostics
+from ..envelopes import Card, ok_card, Diagnostics
 from typing import Dict, Any
 
 

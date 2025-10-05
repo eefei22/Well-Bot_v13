@@ -3,7 +3,7 @@ Memory/RAG tool following Global LLD.
 Searches indexed content for relevant context.
 """
 
-from envelopes import Card, ok_card, error_card, Diagnostics
+from ..envelopes import Card, ok_card, error_card, Diagnostics
 from typing import Dict, Any
 
 

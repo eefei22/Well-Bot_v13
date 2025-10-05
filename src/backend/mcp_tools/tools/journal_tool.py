@@ -3,7 +3,7 @@ Journal tools following Global LLD.
 Handles journal session start, stop, and save operations.
 """
 
-from envelopes import Card, ok_card, overlay_control, Diagnostics
+from ..envelopes import Card, ok_card, overlay_control, Diagnostics
 from typing import Dict, Any
 
 

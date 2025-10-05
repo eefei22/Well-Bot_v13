@@ -3,7 +3,7 @@ Quote tool following Global LLD.
 Provides spiritual quotes with reflection.
 """
 
-from envelopes import Card, ok_card, Diagnostics
+from ..envelopes import Card, ok_card, Diagnostics
 from typing import Dict, Any
 
 

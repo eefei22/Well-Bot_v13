@@ -3,7 +3,7 @@ Safety tool following Global LLD.
 Checks user input for concerning content and provides support resources.
 """
 
-from envelopes import Card, ok_card, error_card, Diagnostics
+from ..envelopes import Card, ok_card, error_card, Diagnostics
 from typing import Dict, Any
 
 

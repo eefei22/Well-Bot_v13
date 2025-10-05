@@ -8,7 +8,7 @@ import time
 import jwt
 import structlog
 from typing import Dict, Any, Callable
-from envelopes import MCPRequest, Card, Diagnostics, error_card
+from .envelopes import MCPRequest, Card, Diagnostics, error_card
 
 logger = structlog.get_logger()
 

@@ -1,0 +1,15 @@
+{
+  "status": "ok",
+  "service": "api",
+  "time": "2025-10-05T03:24:25.153489+00:00",
+  "db": {
+    "status": "healthy",
+    "message": "Database connection successful",
+    "tables_accessible": true,
+    "response_time_ms": "< 1000"
+  },
+  "deepgram": {
+    "status": "ok",
+    "message": "API key configured, TTS endpoint functional"
+  }
+}

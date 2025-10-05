@@ -3,7 +3,7 @@ Session management tools following Global LLD.
 Handles session wake and end operations.
 """
 
-from envelopes import Card, ok_card, Diagnostics
+from ..envelopes import Card, ok_card, Diagnostics
 from typing import Dict, Any
 
 
