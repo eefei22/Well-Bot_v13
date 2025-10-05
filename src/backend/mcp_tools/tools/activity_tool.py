@@ -3,7 +3,7 @@ Activity event logging tool following Global LLD.
 Logs various user activities for analytics.
 """
 
-from envelopes import Card, ok_card, Diagnostics
+from ..envelopes import Card, ok_card, Diagnostics
 from typing import Dict, Any
 
 

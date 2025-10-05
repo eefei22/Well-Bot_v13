@@ -15,8 +15,9 @@ from pathlib import Path
 backend_dir = Path(__file__).parent
 sys.path.insert(0, str(backend_dir))
 
-from routes.health import router as health_router
-from routes.speech import router as speech_router
+from src.backend.api.routes.health import router as health_router
+from src.backend.api.routes.speech import router as speech_router
+from src.backend.api.routes.llm import router as llm_router
 
 # Load environment variables
 load_dotenv()
@@ -61,6 +62,7 @@ app.add_middleware(
 # Include routers
 app.include_router(health_router)
 app.include_router(speech_router)
+app.include_router(llm_router, prefix="/llm")
 
 logger.info("FastAPI application initialized")
 
@@ -74,7 +76,8 @@ def root():
         "status": "running",
         "endpoints": {
             "health": "/healthz",
-            "readiness": "/readyz"
+            "readiness": "/readyz",
+            "chat_turn": "/llm/chat/turn"
         }
     }
 

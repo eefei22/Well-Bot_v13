@@ -3,7 +3,7 @@ Meditation tools following Global LLD.
 Handles meditation playback and logging.
 """
 
-from envelopes import Card, ok_card, Diagnostics
+from ..envelopes import Card, ok_card, Diagnostics
 from typing import Dict, Any
 
 

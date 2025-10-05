@@ -3,7 +3,7 @@ Gratitude tool following Global LLD.
 Handles adding gratitude entries.
 """
 
-from envelopes import Card, ok_card, Diagnostics
+from ..envelopes import Card, ok_card, Diagnostics
 from typing import Dict, Any
 
 
