@@ -1,0 +1,98 @@
+{
+  "first_5_messages": [
+    {
+      "message_number": 1,
+      "raw_message": "{\"type\": \"partial\", \"text\": \"I accidentally\", \"confidence\": 0.9980469}",
+      "message_length": 70,
+      "is_json": true,
+      "parsed_data": {
+        "type": "partial",
+        "text": "I accidentally",
+        "confidence": 0.9980469
+      }
+    },
+    {
+      "message_number": 2,
+      "raw_message": "{\"type\": \"partial\", \"text\": \"I accidentally submitted the wrong\", \"confidence\": 1.0}",
+      "message_length": 84,
+      "is_json": true,
+      "parsed_data": {
+        "type": "partial",
+        "text": "I accidentally submitted the wrong",
+        "confidence": 1.0
+      }
+    },
+    {
+      "message_number": 3,
+      "raw_message": "{\"type\": \"partial\", \"text\": \"I accidentally submitted the wrong report file to my\", \"confidence\": 1.0}",
+      "message_length": 102,
+      "is_json": true,
+      "parsed_data": {
+        "type": "partial",
+        "text": "I accidentally submitted the wrong report file to my",
+        "confidence": 1.0
+      }
+    },
+    {
+      "message_number": 4,
+      "raw_message": "{\"type\": \"partial\", \"text\": \"I accidentally submitted the wrong report file to my supervisor to\", \"confidence\": 0.99902344}",
+      "message_length": 123,
+      "is_json": true,
+      "parsed_data": {
+        "type": "partial",
+        "text": "I accidentally submitted the wrong report file to my supervisor to",
+        "confidence": 0.99902344
+      }
+    },
+    {
+      "message_number": 5,
+      "raw_message": "{\"type\": \"final\", \"text\": \"I accidentally submitted the wrong report file to my supervisor today.\", \"confidence\": 1.0}",
+      "message_length": 118,
+      "is_json": true,
+      "parsed_data": {
+        "type": "final",
+        "text": "I accidentally submitted the wrong report file to my supervisor today.",
+        "confidence": 1.0
+      }
+    }
+  ],
+  "deepgram_ws_params": {
+    "error": "'DeepgramSTTClient' object has no attribute 'debug'"
+  },
+  "client_capture_code": {
+    "description": "Python test client using wave library",
+    "audio_source": "WAV file from disk",
+    "format": "PCM16 mono",
+    "sample_rate": "44100 Hz",
+    "chunk_size": "1024 frames",
+    "websocket_library": "websockets",
+    "binary_type": "bytes (Python)",
+    "code_snippet": "\n# Current test implementation:\nwith wave.open(str(self.sample_audio_path), 'rb') as wav_file:\n    chunk_size = 1024\n    while True:\n        chunk = wav_file.readframes(chunk_size)\n        if not chunk:\n            break\n        await websocket.send(chunk)  # Sends as binary\n        await asyncio.sleep(0.01)\n            ",
+    "notes": [
+      "Using Python websockets library",
+      "Sending raw PCM16 audio chunks",
+      "No MediaRecorder involved (this is server-side test)",
+      "Binary data sent directly via websocket.send()"
+    ]
+  },
+  "audio_format_info": {
+    "channels": 1,
+    "sample_width_bytes": 2,
+    "sample_rate_hz": 44100,
+    "duration_seconds": 4.780408163265306,
+    "total_frames": 210816,
+    "format": "PCM16",
+    "container": "WAV",
+    "encoding": "uncompressed"
+  },
+  "websocket_connection_details": {
+    "endpoint": "ws://localhost:8080/speech/stt:test",
+    "library": "websockets",
+    "connection_type": "client",
+    "protocol": "ws",
+    "binary_type": "bytes",
+    "connected": true,
+    "websocket_object": "<class 'websockets.asyncio.client.ClientConnection'>",
+    "connection_state": "open"
+  }
+}

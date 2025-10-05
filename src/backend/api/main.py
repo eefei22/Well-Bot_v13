@@ -16,6 +16,7 @@ backend_dir = Path(__file__).parent
 sys.path.insert(0, str(backend_dir))
 
 from routes.health import router as health_router
+from routes.speech import router as speech_router
 
 # Load environment variables
 load_dotenv()
@@ -59,6 +60,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(health_router)
+app.include_router(speech_router)
 
 logger.info("FastAPI application initialized")
 

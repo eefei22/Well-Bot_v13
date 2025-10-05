@@ -1,0 +1,134 @@
+Well-Bot Deepgram STT Integration Test Report
+================================================
+Test Date: 2025-10-05 11:22:44
+Test Status: PASSED
+
+Test Results:
+- Server startup: [PASSED]
+- Health endpoints: [PASSED]
+- Audio file validation: [PASSED]
+- STT WebSocket connection: [PASSED]
+- Audio streaming: [PASSED]
+- Transcript generation: [PASSED]
+
+Diagnostic Information:
+======================
+
+1. Deepgram WebSocket Parameters:
+{
+  "error": "'DeepgramSTTClient' object has no attribute 'debug'"
+}
+
+2. Client Capture Code Information:
+{
+  "description": "Python test client using wave library",
+  "audio_source": "WAV file from disk",
+  "format": "PCM16 mono",
+  "sample_rate": "44100 Hz",
+  "chunk_size": "1024 frames",
+  "websocket_library": "websockets",
+  "binary_type": "bytes (Python)",
+  "code_snippet": "\n# Current test implementation:\nwith wave.open(str(self.sample_audio_path), 'rb') as wav_file:\n    chunk_size = 1024\n    while True:\n        chunk = wav_file.readframes(chunk_size)\n        if not chunk:\n            break\n        await websocket.send(chunk)  # Sends as binary\n        await asyncio.sleep(0.01)\n            ",
+  "notes": [
+    "Using Python websockets library",
+    "Sending raw PCM16 audio chunks",
+    "No MediaRecorder involved (this is server-side test)",
+    "Binary data sent directly via websocket.send()"
+  ]
+}
+
+3. Audio Format Information:
+{
+  "channels": 1,
+  "sample_width_bytes": 2,
+  "sample_rate_hz": 44100,
+  "duration_seconds": 4.780408163265306,
+  "total_frames": 210816,
+  "format": "PCM16",
+  "container": "WAV",
+  "encoding": "uncompressed"
+}
+
+4. WebSocket Connection Details:
+{
+  "endpoint": "ws://localhost:8080/speech/stt:test",
+  "library": "websockets",
+  "connection_type": "client",
+  "protocol": "ws",
+  "binary_type": "bytes",
+  "connected": true,
+  "websocket_object": "<class 'websockets.asyncio.client.ClientConnection'>",
+  "connection_state": "open"
+}
+
+5. First 5 Messages Received:
+[
+  {
+    "message_number": 1,
+    "raw_message": "{\"type\": \"partial\", \"text\": \"I accidentally\", \"confidence\": 0.9980469}",
+    "message_length": 70,
+    "is_json": true,
+    "parsed_data": {
+      "type": "partial",
+      "text": "I accidentally",
+      "confidence": 0.9980469
+    }
+  },
+  {
+    "message_number": 2,
+    "raw_message": "{\"type\": \"partial\", \"text\": \"I accidentally submitted the wrong\", \"confidence\": 1.0}",
+    "message_length": 84,
+    "is_json": true,
+    "parsed_data": {
+      "type": "partial",
+      "text": "I accidentally submitted the wrong",
+      "confidence": 1.0
+    }
+  },
+  {
+    "message_number": 3,
+    "raw_message": "{\"type\": \"partial\", \"text\": \"I accidentally submitted the wrong report file to my\", \"confidence\": 1.0}",
+    "message_length": 102,
+    "is_json": true,
+    "parsed_data": {
+      "type": "partial",
+      "text": "I accidentally submitted the wrong report file to my",
+      "confidence": 1.0
+    }
+  },
+  {
+    "message_number": 4,
+    "raw_message": "{\"type\": \"partial\", \"text\": \"I accidentally submitted the wrong report file to my supervisor to\", \"confidence\": 0.99902344}",
+    "message_length": 123,
+    "is_json": true,
+    "parsed_data": {
+      "type": "partial",
+      "text": "I accidentally submitted the wrong report file to my supervisor to",
+      "confidence": 0.99902344
+    }
+  },
+  {
+    "message_number": 5,
+    "raw_message": "{\"type\": \"final\", \"text\": \"I accidentally submitted the wrong report file to my supervisor today.\", \"confidence\": 1.0}",
+    "message_length": 118,
+    "is_json": true,
+    "parsed_data": {
+      "type": "final",
+      "text": "I accidentally submitted the wrong report file to my supervisor today.",
+      "confidence": 1.0
+    }
+  }
+]
+
+Transcript Results:
+- Audio file: C:\Users\lowee\Desktop\Well-Bot\Well-Bot_v13\tests\sample_audio.wav
+- Final transcript: "I accidentally submitted the wrong report file to my supervisor today."
+- Confidence: 1.0
+- Total messages received: 5
+
+Generated Files:
+- stt_result.json (transcript results)
+- stt_health.json (server status)
+- stt.log (detailed log)
+
+The transcript results show the STT functionality is working correctly.
