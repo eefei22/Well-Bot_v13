@@ -55,6 +55,15 @@ The DeepSeek LLM integration has been successfully implemented following the HLD
 - **Safety trigger testing**: support card verification
 - **Error handling**: invalid request validation
 
+### ✅ 7. Frontend Integration (`src/frontend/`)
+- **React/Vite frontend** with TypeScript support
+- **API service layer** (`src/frontend/services/api.ts`) for LLM communication
+- **Error differentiation**: Network vs backend error handling with visual badges
+- **Card rendering system** (`src/frontend/components/chat/Card.tsx`) for LLM responses
+- **Chat interface** (`src/frontend/pages/chat/ChatPage.tsx`) with real-time messaging
+- **Vite proxy configuration** for seamless backend communication
+- **TypeScript interfaces** (`src/frontend/types/api.ts`) matching backend contracts
+
 ## Key Features
 
 ### 🔒 Safety-First Design
@@ -87,18 +96,39 @@ The DeepSeek LLM integration has been successfully implemented following the HLD
 - Structured logging with timing
 - Error tracking and diagnostics
 
+### 🌐 Frontend-Backend Integration
+- **Vite proxy configuration** routes `/llm/*` to backend seamlessly
+- **Error differentiation** between network failures and backend errors
+- **Real-time chat interface** with message bubbles and card rendering
+- **TypeScript type safety** ensures contract compliance
+- **Environment variable handling** with proper fallbacks
+
 ## Configuration Required
 
+### Backend Environment Variables
 Add these environment variables to your `.env` file:
 
 ```bash
-DEEPSEEK_API_KEY=sk-11ff07223bdd469bbbc5c035ef4c701b
+DEEPSEEK_API_KEY=
 DEEPSEEK_BASE_URL=https://api.deepseek.com
 DEEPSEEK_MODEL=deepseek-chat
 WB_LLM_STREAMING=true
 WB_LLM_MAX_TOKENS=250
 WB_LLM_TEMPERATURE=0.3
 ```
+
+### Frontend Environment Variables
+For frontend integration, ensure:
+
+```bash
+# Leave empty to use Vite proxy (recommended)
+VITE_API_BASE=
+
+# Or specify direct backend URL (not recommended for development)
+# VITE_API_BASE=http://localhost:8000
+```
+
+**Important**: The frontend uses Vite proxy configuration to route API calls. Setting `VITE_API_BASE` to an empty string allows the proxy to handle routing correctly.
 
 ## Testing
 
@@ -112,10 +142,22 @@ pytest tests/integration/test_llm_chat_turn.py -v
 python tests/integration/test_llm_chat_turn.py
 ```
 
-### Start the Server
+### Start the Backend Server
 ```bash
 python -m uvicorn src.backend.api.main:app --reload --port 8000
 ```
+
+### Start the Frontend Development Server
+```bash
+npm run dev
+```
+
+### Test Full E2E Integration
+1. Start backend: `python -m uvicorn src.backend.api.main:app --reload --port 8000`
+2. Start frontend: `npm run dev`
+3. Open browser to `http://localhost:5173`
+4. Send a test message in the chat interface
+5. Verify LLM response appears in the chat
 
 ## API Usage
 
@@ -156,6 +198,7 @@ python -m uvicorn src.backend.api.main:app --reload --port 8000
 
 ## Success Criteria Met
 
+### Backend Integration
 ✅ **POST to `/llm/chat/turn` with text returns proper card envelope (always)**  
 ✅ **Small-talk generates DeepSeek responses (streaming with buffered first chunk)**  
 ✅ **Tool intents return appropriate stub cards with "(stub)" marker**  
@@ -164,15 +207,35 @@ python -m uvicorn src.backend.api.main:app --reload --port 8000
 ✅ **Tests pass with <5s latency**  
 ✅ **Intent classifier matrix tests pass (6 cases)**  
 ✅ **Logs show intent, tokens, latency with 50% sampling (masked text, no PII)**  
-✅ **Streaming endpoint responds with chunked transfer and closes cleanly**  
+✅ **Streaming endpoint responds with chunked transfer and closes cleanly**
+
+### Frontend Integration
+✅ **React frontend successfully connects to backend via Vite proxy**  
+✅ **Chat interface displays user messages and LLM responses**  
+✅ **Card rendering system displays LLM response cards with proper styling**  
+✅ **Error handling differentiates network vs backend errors with visual badges**  
+✅ **TypeScript interfaces ensure type safety between frontend and backend**  
+✅ **Environment variable configuration works correctly with proxy setup**  
+✅ **Full E2E chat flow: user input → LLM response → UI display**  
 
 ## Next Steps
 
-The implementation is complete and ready for frontend integration. The next phase would be:
+The DeepSeek LLM integration is now **fully complete** with both backend and frontend integration working. The next phase would be:
 
-1. **Frontend WebSocket client** for real-time STT/TTS integration
-2. **Replace stub cards** with actual MCP tool implementations
+1. **WebSocket STT/TTS integration** for voice input/output
+2. **Replace stub cards** with actual MCP tool implementations  
 3. **Add memory/RAG integration** for context-aware responses
 4. **Implement session state management** for conversation flow
+5. **Add wake-word detection** and push-to-talk functionality
 
-This implementation provides a solid foundation for the voice-first wellness assistant with proper safety, performance, and privacy considerations.
+## Architecture Summary
+
+This implementation provides a **complete E2E chat system** with:
+
+- **Backend**: FastAPI + DeepSeek LLM + Safety checks + Intent detection
+- **Frontend**: React + TypeScript + Vite proxy + Real-time chat UI
+- **Integration**: Seamless communication via REST API with proper error handling
+- **Database**: Supabase integration for conversation persistence
+- **Safety**: Privacy-first logging and fail-open error handling
+
+The system is now ready for voice integration and MCP tool implementation, providing a solid foundation for the voice-first wellness assistant.

@@ -20,6 +20,7 @@ from src.backend.services.deepseek import chat_completion
 from src.backend.core.intent_detector import detect_intent
 from src.backend.mcp_tools.tools.safety_tool import check as safety_check
 from src.backend.mcp_tools.envelopes import Card, ok_card, error_card, Diagnostics
+from src.backend.services.database import get_db_client
 
 logger = structlog.get_logger()
 router = APIRouter()
@@ -110,6 +111,90 @@ def generate_stub_card(intent: str, args: Dict[str, Any]) -> Card:
     )
 
 
+async def ensure_conversation_exists(user_id: str, conversation_id: Optional[str] = None) -> str:
+    """
+    Ensure a conversation exists, creating one if necessary.
+    
+    Args:
+        user_id: User identifier
+        conversation_id: Optional existing conversation ID
+        
+    Returns:
+        Conversation ID (existing or newly created)
+    """
+    if conversation_id:
+        # Verify conversation exists
+        try:
+            db = get_db_client()
+            result = db.table("wb_conversation").select("id").eq("id", conversation_id).eq("user_id", user_id).execute()
+            if result.data:
+                return conversation_id
+        except Exception as e:
+            logger.warning("Failed to verify conversation", conversation_id=conversation_id, error=str(e))
+    
+        # Create new conversation
+        try:
+            db = get_db_client()
+            conversation_data = {
+                "user_id": user_id,
+                "started_at": "now()",
+                "ended_at": None
+            }
+            
+            result = db.table("wb_conversation").insert(conversation_data).execute()
+            if result.data:
+                new_id = result.data[0]["id"]
+                logger.info("Created new conversation", conversation_id=new_id, user_id=user_id)
+                return new_id
+        except Exception as e:
+            logger.error("Failed to create conversation", user_id=user_id, error=str(e))
+    
+    # Fallback to a default ID if database fails
+    return f"conv-{user_id}-{int(time.time())}"
+
+
+async def store_message(conversation_id: str, role: str, content: str, metadata: Optional[Dict[str, Any]] = None) -> None:
+    """
+    Store a message in the database.
+    
+    Args:
+        conversation_id: Conversation identifier
+        role: Message role (user/assistant)
+        content: Message content
+        metadata: Optional metadata
+    """
+    try:
+        db = get_db_client()
+        message_data = {
+            "conversation_id": conversation_id,
+            "role": role,
+            "text": content,  # Use 'text' field for database
+            "created_at": "now()"
+        }
+        
+        db.table("wb_message").insert(message_data).execute()
+        
+        # Update conversation timestamp
+        db.table("wb_conversation").update({
+            "ended_at": "now()"
+        }).eq("id", conversation_id).execute()
+        
+        logger.info(
+            "Stored message",
+            conversation_id=conversation_id,
+            role=role,
+            content_length=len(content)
+        )
+        
+    except Exception as e:
+        logger.error(
+            "Failed to store message",
+            conversation_id=conversation_id,
+            role=role,
+            error=str(e)
+        )
+
+
 async def run_safety_check(text: str, user_id: str, session_id: Optional[str] = None) -> Optional[Card]:
     """
     Run safety check with 50ms timeout and fail-open behavior.
@@ -165,6 +250,38 @@ async def run_safety_check(text: str, user_id: str, session_id: Optional[str] = 
         return None
 
 
+@router.get("/health")
+async def llm_health() -> Dict[str, Any]:
+    """
+    Health check for LLM service.
+    Returns initialization status and basic config.
+    """
+    try:
+        from src.backend.services.deepseek import get_deepseek_client
+        client = get_deepseek_client()
+        
+        return {
+            "status": "healthy",
+            "model": client.model,
+            "base_url": client.base_url,
+            "api_key_set": bool(client.api_key),
+            "streaming_enabled": client.streaming_enabled,
+            "temperature": client.temperature,
+            "max_tokens": client.max_tokens
+        }
+    except Exception as e:
+        logger.error(
+            "LLM health check failed",
+            error=str(e),
+            error_type=type(e).__name__
+        )
+        return {
+            "status": "unhealthy",
+            "error": str(e),
+            "error_type": type(e).__name__
+        }
+
+
 @router.post("/chat/turn")
 async def chat_turn(request: ChatTurnRequest) -> Card:
     """
@@ -190,6 +307,12 @@ async def chat_turn(request: ChatTurnRequest) -> Card:
     )
     
     try:
+        # Step 0: Ensure conversation exists
+        actual_conversation_id = await ensure_conversation_exists(
+            request.user_id, 
+            request.conversation_id
+        )
+        
         # Step 1: Safety check (first, fast, fail-open)
         safety_card = await run_safety_check(
             request.text, 
@@ -200,6 +323,14 @@ async def chat_turn(request: ChatTurnRequest) -> Card:
         if safety_card:
             # Safety triggered - short-circuit and return support card
             safety_card.diagnostics.duration_ms = int((time.time() - start_time) * 1000)
+            
+            # Store messages in database
+            await store_message(actual_conversation_id, "user", request.text)
+            await store_message(actual_conversation_id, "assistant", safety_card.body, {
+                "safety_triggered": True,
+                "safety_type": safety_card.meta.get("kind", "unknown")
+            })
+            
             logger.info(
                 "Turn completed - safety triggered",
                 turn_id=turn_id,
@@ -242,6 +373,14 @@ async def chat_turn(request: ChatTurnRequest) -> Card:
                     )
                 )
                 
+                # Store messages in database
+                await store_message(actual_conversation_id, "user", request.text)
+                await store_message(actual_conversation_id, "assistant", response_text, {
+                    "intent": intent,
+                    "confidence": confidence,
+                    "args": args
+                })
+                
                 logger.info(
                     "Turn completed - small talk",
                     turn_id=turn_id,
@@ -256,7 +395,8 @@ async def chat_turn(request: ChatTurnRequest) -> Card:
                 logger.error(
                     "DeepSeek completion failed",
                     turn_id=turn_id,
-                    error=str(e)
+                    error=str(e),
+                    error_type=type(e).__name__
                 )
                 
                 # Fail-open to error card
@@ -275,6 +415,15 @@ async def chat_turn(request: ChatTurnRequest) -> Card:
             # Tool intent - return stub card
             card = generate_stub_card(intent, args)
             card.diagnostics.duration_ms = int((time.time() - start_time) * 1000)
+            
+            # Store messages in database
+            await store_message(actual_conversation_id, "user", request.text)
+            await store_message(actual_conversation_id, "assistant", card.body, {
+                "intent": intent,
+                "confidence": confidence,
+                "args": args,
+                "tool_response": True
+            })
             
             logger.info(
                 "Turn completed - tool intent",

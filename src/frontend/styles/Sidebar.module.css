@@ -1,0 +1,46 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  padding: 20px 10px;
+  gap: 15px;
+}
+
+.navButton {
+  background: none;
+  border: none;
+  color: var(--color-accent-secondary);
+  padding: 12px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.navButton:hover {
+  background-color: var(--color-accent-primary);
+  color: var(--color-accent-light);
+}
+
+.navButton.active {
+  background-color: var(--color-accent-primary);
+  color: var(--color-accent-light);
+}
+
+.logoutButton {
+  margin-top: auto;
+  background-color: var(--color-accent-primary);
+  color: var(--color-accent-light);
+  border: none;
+  padding: 12px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.logoutButton:hover {
+  background-color: var(--color-accent-secondary);
+}

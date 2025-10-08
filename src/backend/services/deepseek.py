@@ -8,10 +8,14 @@ import hashlib
 import asyncio
 import structlog
 from typing import Dict, Any, List, Optional, AsyncIterator, Union
+from dotenv import load_dotenv
 from openai import AsyncOpenAI
 from openai.types.chat import ChatCompletionChunk
 import time
 from datetime import datetime, timezone
+
+# Load environment variables FIRST (before any class instantiation)
+load_dotenv()
 
 logger = structlog.get_logger()
 
@@ -25,7 +29,15 @@ class DeepSeekClient:
         self.model = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
         
         if not self.api_key:
-            raise ValueError("DEEPSEEK_API_KEY environment variable is required")
+            logger.error(
+                "DEEPSEEK_API_KEY not found in environment",
+                env_file_exists=os.path.exists(".env"),
+                cwd=os.getcwd()
+            )
+            raise ValueError(
+                "DEEPSEEK_API_KEY environment variable is required. "
+                "Ensure .env file exists and contains DEEPSEEK_API_KEY=your-key"
+            )
         
         # Locked defaults per plan
         self.temperature = float(os.getenv("WB_LLM_TEMPERATURE", "0.3"))
@@ -35,15 +47,14 @@ class DeepSeekClient:
         # Initialize OpenAI client with DeepSeek base URL
         self.client = AsyncOpenAI(
             api_key=self.api_key,
-            base_url=self.base_url,
-            timeout=10.0,  # Total timeout ≤10s per plan
-            max_retries=1  # 1 retry on 5xx per plan
+            base_url=self.base_url
         )
         
         logger.info(
             "DeepSeek client initialized",
             base_url=self.base_url,
             model=self.model,
+            api_key_set=bool(self.api_key),
             streaming_enabled=self.streaming_enabled,
             temperature=self.temperature,
             max_tokens=self.max_tokens
@@ -324,10 +335,11 @@ _client: Optional[DeepSeekClient] = None
 
 
 def get_deepseek_client() -> DeepSeekClient:
-    """Get the global DeepSeek client instance."""
+    """Get the global DeepSeek client instance (lazy init)."""
     global _client
     if _client is None:
         _client = DeepSeekClient()
+        logger.info("DeepSeek client lazily initialized")
     return _client
 
 

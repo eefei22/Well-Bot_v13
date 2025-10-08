@@ -18,6 +18,7 @@ sys.path.insert(0, str(backend_dir))
 from src.backend.api.routes.health import router as health_router
 from src.backend.api.routes.speech import router as speech_router
 from src.backend.api.routes.llm import router as llm_router
+from src.backend.api.routes.conversations import router as conversations_router
 
 # Load environment variables
 load_dotenv()
@@ -53,7 +54,10 @@ app = FastAPI(
 # Configure CORS for development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Vite dev server
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:5178"  # ADD alternate Vite port
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -63,6 +67,7 @@ app.add_middleware(
 app.include_router(health_router)
 app.include_router(speech_router)
 app.include_router(llm_router, prefix="/llm")
+app.include_router(conversations_router, prefix="/api")
 
 logger.info("FastAPI application initialized")
 
